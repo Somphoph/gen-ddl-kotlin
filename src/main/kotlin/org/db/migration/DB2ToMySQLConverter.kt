@@ -34,8 +34,22 @@ object DB2ToMySQLConverter {
         return when (db2Type) {
             "VARCHAR", "CHAR" -> "$db2Type($length)"
             "INTEGER" -> "INT"
-            "CLOB" -> "$db2Type($length)"
+            "CLOB" -> convertDataClob(length)
             else -> db2Type
+        }
+    }
+
+    private fun convertDataClob(length: Int?): String {
+        return if (length != null) {
+            if (length < 65536) {
+                "TEXT"
+            } else if (length < 16777216) {
+                "MEDIUMTEXT"
+            } else {
+                "LONGTEXT"
+            }
+        } else {
+            "TEXT"
         }
     }
 
